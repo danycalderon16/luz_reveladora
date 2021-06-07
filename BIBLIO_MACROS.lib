@@ -1,0 +1,74 @@
+CADENA_COLOR  MACRO  cadena,long,ren,col,pag,modo,color
+           MOV AH,19
+           LEA BP,cadena   ; Cadena
+           MOV CX,long     ; Longitud
+           MOV DH,ren      ; ren
+           MOV DL,col      ; col
+           MOV BH,pag      ; pág
+           MOV AL,modo     ; modo
+           MOV BL,color   ;ATRIBUTO (COLOR)
+           INT 10H
+CADENA_COLOR  ENDM
+
+CADENA_SIN_COLOR MACRO cadena
+        MOV AH,9
+        LEA DX,cadena
+        INT 21H
+CADENA_SIN_COLOR ENDM
+
+CURSOR MACRO R,C,P   
+        MOV AH, 2
+        MOV DH, R
+        MOV DL, C
+        MOV BL, P
+        INT 10h
+CURSOR ENDM     
+
+CREAR_CARPETA MACRO ruta
+    MOV AH, 39h
+    LEA DX, ruta
+    INT 21h
+CREAR_CARPETA ENDM              
+
+CREAR_ARCHIVO MACRO ruta
+    MOV AH, 3Ch
+    LEA DX, ruta
+    MOV CX, 32   ;Archivo de texto, escritura y lector
+    INT 21h             
+CREAR_ARCHIVO ENDM       
+    
+ABRIR_ARCHIVO MACRO ruta, manejador                        
+    MOV AH, 3Dh
+    LEA DX, ruta
+    MOV AL, 2
+    INT 21h
+    MOV manejador, AX  ;Recuperar el manejador                
+ABRIR_ARCHIVO ENDM    
+                                        
+LEER_ARCHIVO MACRO manejador, leidos, caracteres
+    MOV AH, 3Fh
+    MOV BX, manejador
+    MOV CX, caracteres  ; cantidad de caracteres a leer
+    LEA DX, leidos      ; ¿En dónde se almacena?
+    INT 21h
+LEER_ARCHIVO ENDM  
+
+ESCRIBIR_ARCHIVO MACRO manejador, totalEscribir, datosEscribir
+    MOV AH, 40h           ; escribir en el archivo
+    MOV BX, manejador     ; ¿en que archivo?
+    MOV CX, totalEscribir ; ¿cuantos caracteres?
+    LEA DX, datosEscribir ; ¿Qué vas a escribir?              
+    INT 21h        
+ESCRIBIR_ARCHIVO ENDM                            
+
+CERRAR_ARCHIVO MACRO manejador 
+     MOV AH, 3Eh
+     MOV BX, manejador
+     INT 21h
+CERRAR_ARCHIVO ENDM                 
+    
+LEER_CADENA MACRO variable     
+    MOV AH, 10 ;LEER DESDE TECLADO
+    LEA DX, variable
+    INT 21h 
+LEER_CADENA ENDM    
