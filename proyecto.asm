@@ -1,12 +1,4 @@
-; this example shows how to access virtual ports (0 to 65535).
-; these ports are emulated in this file: c:\emu8086.io
 
-; this technology allows to make external add-on devices
-; for emu8086, such as led displays, robots, thermometers, stepper-motors, etc... etc...
-
-; anyone can create an animated virtual device.
-
-; c:\emu8086\devices\led_display.exe
  
 include BIBLIO_MACROS.lib
 #start=led_display.exe#                               
@@ -31,24 +23,21 @@ include BIBLIO_MACROS.lib
       car db 178
      
 .code  
-mov ax,@data
-mov ds,ax
-mov es,ax    
-
-mov ax, 1234
-out 199, ax
-
-mov ax, -5678
-out 199, ax
-
-; Eternal loop to write
-; values to port:
-mov ax, 0                                                                     
+    MOV AX,@data
+    MOV ds,AX
+    MOV es,AX    
+    
+    MOV AX, 1234
+    out 199, AX
+    
+    MOV AX, -5678
+    out 199, AX
+;**************INICICALIZAMOS LA PANTALLA CON MENSAJE Y MARCOS                                                                                    
     cadena_color linea,80,0,0,0,0,1eh  
     cadena_color linea,80,12,0,0,0,1eh  
     cadena_color linea,80,24,0,0,0,1eh  
-     cadena_color titulo,35,0,23,0,0,0ECh             
-    mov cx, 24  
+    cadena_color titulo,35,0,23,0,0,0ECh             
+    MOV cx, 24  
 pintar:
      push cx                                   
          cadena_color car,1,ren,0,0,0,1eh      
@@ -57,23 +46,20 @@ pintar:
          inc ren         
     pop cx
     loop pintar     
-    
-    
-    
-                        
-contador:     
+;*****************************************************************                            
+medidor:     
       in al,125  ; Leer un byte del puerto 127-termómetro
-      mov temperatura,al                                       
-      mov ax, numero
-      out 199, ax 
-      cmp temperatura, 20 ; se acercan los moustros
-      je  alarmaActiva    
+      MOV temperatura,al                                       
+      MOV AX, numero
+      out 199, AX 
+      cmp temperatura, 20 ; ALGUIEN PASO POR AHI
+      je  encenderLuz     ; PRENDEMOS LA LUZ 
 checar:      
       cmp numero, 20  
-      je reiniciar   
+      je reiniciar        ; REINICIAMOS EL DISPLAY 
       inc numero                                 
-      jmp contador  
-alarmaActiva:     
+      jmp medidor  
+encenderLuz:     
       MOV numero, AX 
       cmp numero, 15
       jg zona4
@@ -84,12 +70,13 @@ alarmaActiva:
       cmp numero, 0
       jg zona1
 reiniciar:
-      mov numero,0      
-      jmp contador    
+      MOV numero,0      
+      jmp medidor    
+;************* ESCRIBIMO DEPENDIENDO LA ZONA *************      
 zona1:         
     CADENA_COLOR ms1,6,ren1,17,0,0,1eh   
     inc ren1
-    jmp checar  
+    jmp checar
 zona2:
     CADENA_COLOR ms2,6,ren2,57,0,0,1eh   
     inc ren2
@@ -101,7 +88,8 @@ zona3:
 zona4:
     CADENA_COLOR ms4,6,ren4,57,0,0,1eh   
     inc ren4
-    jmp checar                    
+    jmp checar                                            
+;*****************************************************************
 
 fin:
         MOV AX, 4c00h
