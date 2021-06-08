@@ -145,5 +145,12 @@ zona4:
 fin:
         MOV AX, 4c00h
         INT 21h
-end        
+;**************** SECCIÓN DE PROCEDIMIENTOS **************
+tecla PROC 
+        MOV AH, 0    ; CÓDIGO DE RASTREO
+        INT 16h
+     RET
+ ENDP
+;****************** FIN DE PROCEDIMIENTOS ****************    
+END         
                   
