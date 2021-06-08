@@ -72,3 +72,24 @@ LEER_CADENA MACRO variable
     LEA DX, variable
     INT 21h 
 LEER_CADENA ENDM    
+
+CAMBIAR_PAGINA MACRO pag
+	MOV AH, 5 
+	MOV AL, pag
+	INT 10h
+CAMBIAR_PAGINA ENDM
+
+;**************SECCIÓN DE PROCEDIMIENTOS
+
+PAUSA PROC NEAR
+            MOV DX,0FFH
+CICLO_EXTERNO: 
+          MOV CX,0FFH
+CICLO_INTERNO: 
+           LOOP CICLO_INTERNO
+          DEC DX
+           JNZ CICLO_EXTERNO
+         RET
+PAUSA ENDP
+           
+           
