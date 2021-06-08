@@ -1,7 +1,7 @@
 
  
-include BIBLIO_MACROS.lib
-#start=led_display.exe#                               
+include BIBLIO_MACROS.lib          
+#start=led_display.exe#                                 
 #start=thermometer.exe#  
     
 .model small
@@ -24,18 +24,22 @@ include BIBLIO_MACROS.lib
         usuario       db 'USUARIO     : '; 12                                           
         contra        db 'CONTRASE',165,'A  :'; 12   
         presioneTecla db 'Presiona una tecla para continuar'      ;23   
-        passInco      db 'CONTRASE',165,'A INCORRECTA'  ;21            
+        passInco      db 'CONTRASE',165,'A INCORRECTA. REINIECE'  ;21       
+        vuetasEntrada db 'N',163,'mero (1-9)'     
         ms2           db 'zona 2'
         ms1           db 'zona 1' 
         ms3           db 'zona 3' 
         ms4           db 'zona 4'       
         msjVueltas    db 'Ingrese el n',163,'mero dependiendo la hora de finalizaci',162,'n.'  ;53
+        msjFin        db 'Monitoreo finalizado. Revise las bit',160,'coras.'                                       
+        teclaSalir    db 'Presiona una tecla para salir.'      ;23   
         ;***************************************      
         
         ;****** variables para recuperar cadenas *******   
         user          db  9,0,9 dup('$')
         pass          db  9,0,9 dup('$')     
-        passW         db '123'   ;comparar cadena con contraseña
+        passW         db '123'   ;comparar cadena con contraseña           
+        vueltas       db  2,0,2 dup('$')  ; veces que se checara el termometro
         ;*************************************** 
         
         ;;***** renglones para el posicionar*****                   
@@ -43,11 +47,11 @@ include BIBLIO_MACROS.lib
         ren2          db 3  
         ren3          db 15  
         ren4          db 15           
-        ren           db 1  ;pintar marco
+        ren           db 1  ;pintar marco   
+        vueltasDadas  db 0  
         ;****************************************   
          
         ;********** contadores ******************    
-        vueltas       db 0  ; veces que se checara el termometro
         numero        dw 0  ; contador del display
         temperatura   db 0  ; contador del termometro  
         ;****************************************      
@@ -62,15 +66,19 @@ include BIBLIO_MACROS.lib
     out 199, AX
     
     MOV AX, -5678
-    out 199, AX    
+    out 199, AX        
     
+;**********************
+;CAMBIAR_PAGINA 3  
+;jmp fin
+;    
 ;******************
-CAMBIAR_PAGINA 1   
-jmp pantalla_uno
+;CAMBIAR_PAGINA 1  
+;jmp pantalla_uno
 ;******************
-           
-bienvenida:     
 
+;****************** INTERFAZ DE LOGIN  ******************           
+bienvenida:   
     cadena_color msjB,27,7,27,0,0,0ECh                                                                        
     cadena_color esquina1,1,6,26,0,0,0ECh                                                                           
     cadena_color esquina2,1,6,54,0,0,0ECh                                                                           
@@ -85,27 +93,41 @@ bienvenida:
     CADENA_COLOR contra, 12, 13, 27, 0, 0, 0ECh       
      
     CURSOR 11,40,0
-    LEER_CADENA user
+    LEER_CADENA user  ;INGRESAR USUARIO
     CURSOR 13,40,0
-    LEER_CADENA pass   
+    LEER_CADENA pass  ;INGRESAR CONTRASEÑA                 
+ ;******************************************************    
 comprobar_contra:
         LEA SI, passW
-        LEA DI, pass+2 ; Dos bytes de control
+        LEA DI, pass+2 
         
-        MOV CX, 3      ;COMPARA 5 CARACTERES,
+        MOV CX, 3      
         
-        REPE CMPSB   
+        REPE CMPSB    ; COMPARAMOS CONTRASEÑA
         
-        JZ iguales        
-        CADENA_COLOR passInco, 21, 16, 27, 0,0, 0ECh   
-        call tecla
+        JZ iguales    ; SI ES CORRECTA ENTRAMOS        
+        CADENA_COLOR passInco, 31, 16, 27, 0,0, 0ECh   
+        call tecla    ; SI ES INCORRECTA SE SALE
         JMP fin     
-iguales:
+iguales:                      
     CADENA_COLOR presioneTecla,33, 16, 22, 0,0, 0ECh   
     call TECLA           
-    CAMBIAR_PAGINA 1
-pantalla_uno:
-    CADENA_COLOR msjVueltas,53, 8, 13, 1,0, 0ECh        
+    CAMBIAR_PAGINA 1  ; NOS VAMOS A OTRA PÁGINA
+    
+;****************** INGREAR VUETAS ******************
+pantalla_uno:                                    
+    CADENA_COLOR msjVueltas,54, 6, 13, 1,0, 0ECh 
+    CADENA_COLOR vuetasEntrada,12, 8, 28, 1,0, 0ECh     
+    CURSOR 8,41,1
+    LEER_CADENA vueltas                               
+    ;ADD vueltas, 30h                                   
+    CADENA_COLOR presioneTecla,33, 14, 22, 1,0, 0ECh   
+    CURSOR 14,56 1
+    CALL TECLA         
+    CAMBIAR_PAGINA 2
+
+;****************************************************
+       
 pantalla_dos:         
 ;**************INICICALIZAMOS LA PANTALLA CON MENSAJE Y MARCOS                                                                                    
     cadena_color linea,80,0,0,2,0,1eh  
@@ -132,7 +154,10 @@ medidor:
 checar:      
       cmp numero, 20  
       je reiniciar        ; REINICIAMOS EL DISPLAY 
-      inc numero                                 
+      inc numero       
+      mov al,vueltas  
+      cmp vueltasDadas,al
+      je fin                                  
       jmp medidor  
 encenderLuz:     
       MOV numero, AX 
@@ -150,23 +175,33 @@ reiniciar:
 ;************* ESCRIBIMO DEPENDIENDO LA ZONA *************      
 zona1:         
     CADENA_COLOR ms1,6,ren1,17,2,0,1eh   
-    inc ren1
-    jmp checar
+    inc ren1                              
+    inc vueltasDadas
+    jmp checar                            
 zona2:
     CADENA_COLOR ms2,6,ren2,57,2,0,1eh   
-    inc ren2
+    inc ren2                               
+    inc vueltasDadas
     jmp checar
 zona3:
     CADENA_COLOR ms3,6,ren3,17,2,0,1eh   
-    inc ren3
+    inc ren3                              
+    inc vueltasDadas
     jmp checar
 zona4:
     CADENA_COLOR ms4,6,ren4,57,2,0,1eh   
-    inc ren4
+    inc ren4                           
+    inc vueltasDadas
     jmp checar                                            
 ;*****************************************************************
 
-fin:
+fin:           
+        CAMBIAR_PAGINA 3                         
+        CADENA_COLOR msjFin,43,8,19,3,0,1eh   
+        CADENA_COLOR teclaSalir,30,10,23,3,0,1eh   
+        CURSOR 10,54,3           
+        CALL tecla
+        
         MOV AX, 4c00h
         INT 21h
 ;**************** SECCIÓN DE PROCEDIMIENTOS **************
