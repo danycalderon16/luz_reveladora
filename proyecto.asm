@@ -6,35 +6,52 @@ include BIBLIO_MACROS.lib
     
 .model small
 .stack
-.data                                
+.data    
+        ;****** variables para el diseño *******                            
         lineaArriba   db 27 dup(205),'$' 
         linea         db 80 dup(178),'$'       
         esquina1      db 1  dup(201),'$'      
         esquina2      db 1  dup(187),'$'      
         esquina3      db 1  dup(200),'$'      
         esquina4      db 1  dup(188),'$'  
-        barra         db 1  dup(186),'$'
+        barra         db 1  dup(186),'$'   
+        car           db 178      
+        ;***************************************   
+        
+        ;****** variables para mensajes *******   
         titulo        db 'LUZ REVELADORA. CENTRO DE MONITOREO';35   
         msjB          db 'BIENVENIDO A LUZ REVELADORA'        ;27    
         usuario       db 'USUARIO     : '; 12                                           
         contra        db 'CONTRASE',165,'A  :'; 12   
-        user          db  9,0,9 dup('$')
-        pass          db  9,0,9 dup('$')     
-        passW         db '123'
-        passInco      db 'CONTRASE',165,'A INCORRECTA'  ;21
-        temperatura   db 0         
-        presioneTecla db 'Presiona una tecla para continuar'      ;23
+        presioneTecla db 'Presiona una tecla para continuar'      ;23   
+        passInco      db 'CONTRASE',165,'A INCORRECTA'  ;21            
         ms2           db 'zona 2'
         ms1           db 'zona 1' 
         ms3           db 'zona 3' 
-        ms4           db 'zona 4'                
-        ren1          db 3  
+        ms4           db 'zona 4'       
+        msjVueltas    db 'Ingrese el n',163,'mero dependiendo la hora de finalizaci',162,'n.'  ;53
+        ;***************************************      
+        
+        ;****** variables para recuperar cadenas *******   
+        user          db  9,0,9 dup('$')
+        pass          db  9,0,9 dup('$')     
+        passW         db '123'   ;comparar cadena con contraseña
+        ;*************************************** 
+        
+        ;;***** renglones para el posicionar*****                   
+        ren1          db 3  ;poner mensaje
         ren2          db 3  
         ren3          db 15  
-        ren4          db 15  
-        numero        dw 0  
-        ren           db 1 
-        car           db 178
+        ren4          db 15           
+        ren           db 1  ;pintar marco
+        ;****************************************   
+         
+        ;********** contadores ******************    
+        vueltas       db 0  ; veces que se checara el termometro
+        numero        dw 0  ; contador del display
+        temperatura   db 0  ; contador del termometro  
+        ;****************************************      
+        
      
 .code  
     MOV AX,@data
@@ -45,7 +62,13 @@ include BIBLIO_MACROS.lib
     out 199, AX
     
     MOV AX, -5678
-    out 199, AX           
+    out 199, AX    
+    
+;******************
+CAMBIAR_PAGINA 1   
+jmp pantalla_uno
+;******************
+           
 bienvenida:     
 
     cadena_color msjB,27,7,27,0,0,0ECh                                                                        
@@ -81,19 +104,20 @@ iguales:
     CADENA_COLOR presioneTecla,33, 16, 22, 0,0, 0ECh   
     call TECLA           
     CAMBIAR_PAGINA 1
-    
+pantalla_uno:
+    CADENA_COLOR msjVueltas,53, 8, 13, 1,0, 0ECh        
 pantalla_dos:         
 ;**************INICICALIZAMOS LA PANTALLA CON MENSAJE Y MARCOS                                                                                    
-    cadena_color linea,80,0,0,1,0,1eh  
-    cadena_color linea,80,12,0,1,0,1eh  
-    cadena_color linea,80,24,0,1,0,1eh  
-    cadena_color titulo,35,0,23,1,0,0ECh             
+    cadena_color linea,80,0,0,2,0,1eh  
+    cadena_color linea,80,12,0,2,0,1eh  
+    cadena_color linea,80,24,0,2,0,1eh  
+    cadena_color titulo,35,0,23,2,0,0ECh             
     MOV cx, 24  
 pintar:
      push cx                                   
-         cadena_color car,1,ren,0,1,0,1eh      
-         cadena_color car,1,ren,39,1,0,1eh   
-         cadena_color car,1,ren,79,1,0,1eh         
+         cadena_color car,1,ren,0,2,0,1eh      
+         cadena_color car,1,ren,39,2,0,1eh   
+         cadena_color car,1,ren,79,2,0,1eh         
          inc ren         
     pop cx
     loop pintar     
@@ -125,19 +149,19 @@ reiniciar:
       jmp medidor    
 ;************* ESCRIBIMO DEPENDIENDO LA ZONA *************      
 zona1:         
-    CADENA_COLOR ms1,6,ren1,17,0,0,1eh   
+    CADENA_COLOR ms1,6,ren1,17,2,0,1eh   
     inc ren1
     jmp checar
 zona2:
-    CADENA_COLOR ms2,6,ren2,57,0,0,1eh   
+    CADENA_COLOR ms2,6,ren2,57,2,0,1eh   
     inc ren2
     jmp checar
 zona3:
-    CADENA_COLOR ms3,6,ren3,17,0,0,1eh   
+    CADENA_COLOR ms3,6,ren3,17,2,0,1eh   
     inc ren3
     jmp checar
 zona4:
-    CADENA_COLOR ms4,6,ren4,57,0,0,1eh   
+    CADENA_COLOR ms4,6,ren4,57,2,0,1eh   
     inc ren4
     jmp checar                                            
 ;*****************************************************************
