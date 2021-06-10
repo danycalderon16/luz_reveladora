@@ -1,3 +1,11 @@
+;***********************************************************
+; Fecha: 10 de junio de 2021
+; NL 1
+; NOMBRE DANIEL ALEJANDRO CALDERON VIRGEN      
+; NL 2
+; NOMBRE LUIS SERGIO CALLIRRO SANCHEZ
+; HORA 12PM                                                   
+;***********************************************************
 include BIBLIO_MACROS.lib          
 #start=led_display.exe#                                 
 #start=thermometer.exe#  
@@ -109,7 +117,7 @@ include BIBLIO_MACROS.lib
         mensajeAlarma db ' LUZ ENCENDIDA! ';18     
         
      
-.code  
+.code   
     MOV AX,@data
     MOV ds,AX
     MOV es,AX    
@@ -119,16 +127,7 @@ include BIBLIO_MACROS.lib
     
     MOV AX, -5678
     out 199, AX        
-    
-;**********************
-;CAMBIAR_PAGINA 3  
-;jmp fin                                              
 
-;    
-;******************
-;CAMBIAR_PAGINA 1  
-;jmp pantalla_uno
-;******************
 
 ;****************** INTERFAZ DE LOGIN  ******************           
 bienvenida:   
@@ -192,8 +191,7 @@ pantalla_uno:
     CREAR_ARCHIVO RUTAb2 
     CREAR_ARCHIVO RUTAb3 
     CREAR_ARCHIVO RUTAb4
-    mov DI,0
-    ;mov d1,0    
+    mov DI,0     
     CAMBIAR_PAGINA 2
 
 ;****************************************************
@@ -297,8 +295,7 @@ msjA1:   push cx
          loop msjA1
         
         add d1,DI 
-         
-        
+                                    
         ;MOV DI,0
         jmp checar
                             
@@ -353,11 +350,7 @@ msjA12:   push cx
          
          add d2,DI
          jmp checar
-
-        
-        ;MOV DI,0
-          
-         
+                                
 zona3:
     ;mov DI,0
     CADENA_COLOR ms3,6,ren3,17,2,0,1eh   
@@ -405,8 +398,7 @@ msjA13:   push cx
          pop cx
          loop msjA13
         
-        add d3,DI 
-         
+        add d3,DI                   
         
         ;MOV DI,0
         jmp checar  
@@ -463,54 +455,6 @@ msjA14:   push cx
         ;MOV DI,0
         jmp checar  
          
-           
-;***************************************************************** 
-;alarmaActiva:  
-;         inc totalEscribir 
-;         LEER_HORA    
-;         MOV hora,CH
-;         MOV MINUTOS,CL
-;         XOR AX,AX 
-;         MOV AL,hora
-;         AAM
-;         mov datosEscribir[DI],AH ;Decenas
-;         add datosEscribir[DI],30h
-;         
-;         INC DI 
-;         INC totalEscribir
-;         MOV datosEscribir[DI],AL ;Unidades
-;         add datosEscribir[DI],30h
-;         INC DI 
-;         INC totalEscribir    
-;         mov datosEscribir[Di],':'
-;         INC DI 
-;         INC totalEscribir            
-;         XOR AX,AX
-;         MOV AL,MINUTOS
-;         AAM
-;         mov datosEscribir[DI],AH  ;Decenas
-;         add datosEscribir[DI],30h
-;         INC DI
-;         INC totalEscribir
-;         MOV datosEscribir[DI],AL  ;Unidades
-;         ADD datosEscribir[DI],30H
-;         mov cx,15
-;         MOV SI,0
-;msjA12:   push cx   
-;            INC DI  
-;            INC totalEscribir                 
-;            MOV AL,mensajeAlarma[si]
-;            mov datosEscribir[Di],AL
-;            inc si
-;         pop cx
-;         loop msjA12
-;         
-;         
-;        ESCRIBIR_ARCHIVO manejador, DI, datosESCRIBIR
-;        ;MOV DI,0
-;        jmp checar
-
-
 ERROR:
     ;JMP FIN
     CADENA_COLOR msjNo,55, 18, 17, 1,0, 0ECh
@@ -521,12 +465,10 @@ ERROR:
         INT 21h
 
 fin:    
-
         ESCRIBIR_ARCHIVO manejador1, d1, datosESCRIBIR1
         ESCRIBIR_ARCHIVO manejador2, d2, datosESCRIBIR2
         ESCRIBIR_ARCHIVO manejador3, d3, datosESCRIBIR3
         ESCRIBIR_ARCHIVO manejador4, d4, datosESCRIBIR4
-        
         
         CAMBIAR_PAGINA 3                         
         CADENA_COLOR msjFin,43,8,19,3,0,1eh   
@@ -536,9 +478,9 @@ fin:
         
         MOV AX, 4c00h
         INT 21h
-;**************** SECCIÃ“N DE PROCEDIMIENTOS **************
+;**************** SECCIÓN DE PROCEDIMIENTOS **************
 tecla PROC 
-        MOV AH, 0    ; CÃ“DIGO DE RASTREO
+        MOV AH, 0    ; CÓDIGO DE RASTREO
         INT 16h
      RET
  ENDP
