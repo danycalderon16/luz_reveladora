@@ -28,13 +28,15 @@ CREAR_CARPETA MACRO ruta
     MOV AH, 39h
     LEA DX, ruta
     INT 21h
+jc error
 CREAR_CARPETA ENDM              
 
 CREAR_ARCHIVO MACRO ruta
     MOV AH, 3Ch
     LEA DX, ruta
     MOV CX, 32   ;Archivo de texto, escritura y lector
-    INT 21h             
+    INT 21h
+jc error            
 CREAR_ARCHIVO ENDM       
     
 ABRIR_ARCHIVO MACRO ruta, manejador                        
@@ -42,7 +44,8 @@ ABRIR_ARCHIVO MACRO ruta, manejador
     LEA DX, ruta
     MOV AL, 2
     INT 21h
-    MOV manejador, AX  ;Recuperar el manejador                
+    MOV manejador, AX  ;Recuperar el manejador
+jc error               
 ABRIR_ARCHIVO ENDM    
                                         
 LEER_ARCHIVO MACRO manejador, leidos, caracteres
@@ -51,6 +54,7 @@ LEER_ARCHIVO MACRO manejador, leidos, caracteres
     MOV CX, caracteres  ; cantidad de caracteres a leer
     LEA DX, leidos      ; ¿En dónde se almacena?
     INT 21h
+jc error
 LEER_ARCHIVO ENDM  
 
 ESCRIBIR_ARCHIVO MACRO manejador, totalEscribir, datosEscribir
@@ -58,13 +62,15 @@ ESCRIBIR_ARCHIVO MACRO manejador, totalEscribir, datosEscribir
     MOV BX, manejador     ; ¿en que archivo?
     MOV CX, totalEscribir ; ¿cuantos caracteres?
     LEA DX, datosEscribir ; ¿Qué vas a escribir?              
-    INT 21h        
+    INT 21h
+jc error       
 ESCRIBIR_ARCHIVO ENDM                            
 
 CERRAR_ARCHIVO MACRO manejador 
      MOV AH, 3Eh
      MOV BX, manejador
      INT 21h
+jc error
 CERRAR_ARCHIVO ENDM                 
     
 LEER_CADENA MACRO variable     
@@ -91,5 +97,8 @@ CICLO_INTERNO:
            JNZ CICLO_EXTERNO
          RET
 PAUSA ENDP
-           
-           
+
+LEER_HORA MACRO
+MOV AH,2CH
+INT 21H
+LEER_HORA ENDM
